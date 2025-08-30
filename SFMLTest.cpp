@@ -1,95 +1,8 @@
 ﻿#include <entt/entt.hpp>
 #include <SFML/Graphics.hpp>
 
-#include <iostream>
-#include <print>
-
-struct Velocity
-{
-	float x, y;
-};
-
-void SystemCirclesMover(sf::RenderWindow& window, entt::registry& registry)
-{
-	registry.view<sf::CircleShape, sf::Vector2f, Velocity>().
-		each([](auto& circle, auto& pos, auto& velocity)
-			{
-				pos.x += velocity.x;
-			});
-}
-
-void SystemVelocity(sf::RenderWindow& window, entt::registry& registry)
-{
-	constexpr float friction = 0.93f;
-	//SystemVelocity
-	registry.view<Velocity>().
-		each([friction](auto& velocity)
-			{
-				velocity.x *= friction;
-				velocity.y *= friction;
-			});
-}
-
-void SystemRender(sf::RenderWindow& window, entt::registry& registry)
-{
-	registry.view<sf::CircleShape, sf::Vector2f>().
-		each([&window](auto& circle, auto& position)
-			{
-				circle.setPosition(position);
-				window.draw(circle);
-			});
-}
-
-void GameInit(sf::RenderWindow& window, entt::registry& registry)
-{
-	sf::Vector2u windowSize = window.getSize(); // width, height
-
-	sf::Vector2f topLeft(0.f, 0.f);
-	sf::Vector2f topRight(static_cast<float>(windowSize.x), 0.f);
-	sf::Vector2f bottomLeft(0.f, static_cast<float>(windowSize.y));
-	sf::Vector2f bottomRight(static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));
-
-	for (int i = 0; i < 20000;i++)
-	{
-		// Create a simple entity with a position and a shape
-		auto entity = registry.create();
-		auto& circle = registry.emplace<sf::CircleShape>(entity, 10.f);
-		circle.setFillColor(sf::Color::Green);
-
-		float maxHeight = static_cast<float>(windowSize.y);
-		registry.emplace<sf::Vector2f>
-			(entity, topLeft.x, std::fmod(topLeft.y + (i * 0.1f), maxHeight)); //looping the y position to 0
-
-		registry.emplace<Velocity>(entity, 0.f, 0.f);
-	}
-
-	auto view = registry.view<entt::entity>();
-	std::cout << "Entity count : " << view.size() << "\n";
-}
-
-bool pressedLastFrame = false;
-
-void GameMain(sf::RenderWindow& window, entt::registry& registry)
-{
-	bool isKeyDown = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
-	if (isKeyDown && !pressedLastFrame)
-	{
-		float force = 3.f;
-		for (auto [ent, circle, vel] : registry.view< sf::CircleShape, Velocity>().each())
-		{
-			int randomTest = rand() % 100;
-			//int entityId = static_cast<uint32_t>(ent);
-			vel.x += force + randomTest;
-		}
-
-	}
-
-	pressedLastFrame = isKeyDown;
-
-	SystemVelocity(window, registry);
-	SystemCirclesMover(window, registry);
-	SystemRender(window, registry);
-}
+#include "src/commons/PerformanceAnalyze.h"
+#include "GameLoop.h"
 
 int main()
 {
@@ -97,6 +10,12 @@ int main()
 	entt::registry registry;
 
 	GameInit(window, registry);
+
+	LARGE_INTEGER freq;
+	LARGE_INTEGER start;
+	LARGE_INTEGER end;
+
+	QueryPerformanceFrequency(&freq);
 
 	while (window.isOpen())
 	{
@@ -109,8 +28,10 @@ int main()
 				window.close();
 		}
 
-
+		QueryPerformanceCounter(&start);
 		GameMain(window, registry);
+		QueryPerformanceCounter(&end);
+		CountTimeWindows(freq, start, end);
 
 		window.display();
 	}

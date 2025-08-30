@@ -131,7 +131,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="GameLoop.cpp" />
     <ClCompile Include="SFMLTest.cpp" />
+    <ClCompile Include="src\commons\Randomizer.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GameLoop.h" />
+    <ClInclude Include="src\commons\PerformanceAnalyze.h" />
+    <ClInclude Include="src\commons\Randomizer.h" />
+    <ClInclude Include="src\main\Systems.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
