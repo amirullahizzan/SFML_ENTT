@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SFMLTest", "SFMLTest.vcxproj", "{55D8F308-8793-4EA8-996B-C9A86C5104E8}"
 EndProject
@@ -11,6 +11,8 @@ Global
 		Debug|x86 = Debug|x86
 		Release|x64 = Release|x64
 		Release|x86 = Release|x86
+		ReleaseCustom|x64 = ReleaseCustom|x64
+		ReleaseCustom|x86 = ReleaseCustom|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{55D8F308-8793-4EA8-996B-C9A86C5104E8}.Debug|x64.ActiveCfg = Debug|x64
@@ -21,8 +23,15 @@ Global
 		{55D8F308-8793-4EA8-996B-C9A86C5104E8}.Release|x64.Build.0 = Release|x64
 		{55D8F308-8793-4EA8-996B-C9A86C5104E8}.Release|x86.ActiveCfg = Release|Win32
 		{55D8F308-8793-4EA8-996B-C9A86C5104E8}.Release|x86.Build.0 = Release|Win32
+		{55D8F308-8793-4EA8-996B-C9A86C5104E8}.ReleaseCustom|x64.ActiveCfg = ReleaseCustom|x64
+		{55D8F308-8793-4EA8-996B-C9A86C5104E8}.ReleaseCustom|x64.Build.0 = ReleaseCustom|x64
+		{55D8F308-8793-4EA8-996B-C9A86C5104E8}.ReleaseCustom|x86.ActiveCfg = ReleaseCustom|Win32
+		{55D8F308-8793-4EA8-996B-C9A86C5104E8}.ReleaseCustom|x86.Build.0 = ReleaseCustom|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9DD59257-8EFE-409E-A80D-A45154AB4A5F}
 	EndGlobalSection
 EndGlobal

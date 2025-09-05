@@ -1,0 +1,5 @@
+﻿  GameLoop.cpp
+GameLoop.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:ICF' specification
+  SFMLTest.vcxproj -> C:\Users\amiru\OneDrive\Documents\SFML_ENTT\x64\ReleaseCustom\SFMLTest.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.

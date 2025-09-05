@@ -1,0 +1,21 @@
+﻿  GameLoop.cpp
+C:\Users\amiru\OneDrive\Documents\SFML_ENTT\GameLoop.h(3,10): error C1083: Cannot open include file: 'SFML/Graphics.hpp': No such file or directory
+  (compiling source file 'GameLoop.cpp')
+  
+  SFMLTest.cpp
+C:\Users\amiru\OneDrive\Documents\SFML_ENTT\SFMLTest.cpp(1,10): error C1083: Cannot open include file: 'entt/entt.hpp': No such file or directory
+  Randomizer.cpp
+C:\Users\amiru\OneDrive\Documents\SFML_ENTT\src\commons\Randomizer.h(10,35): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'src/commons/Randomizer.cpp')
+  
+C:\Users\amiru\OneDrive\Documents\SFML_ENTT\src\commons\Randomizer.h(11,35): error C7525: inline variables require at least '/std:c++17'
+  (compiling source file 'src/commons/Randomizer.cpp')
+  
+C:\Users\amiru\OneDrive\Documents\SFML_ENTT\src\commons\Randomizer.h(46,35): error C2039: 'clamp': is not a member of 'std'
+  (compiling source file 'src/commons/Randomizer.cpp')
+      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\random(47,1):
+      see declaration of 'std'
+  
+C:\Users\amiru\OneDrive\Documents\SFML_ENTT\src\commons\Randomizer.h(46,35): error C3861: 'clamp': identifier not found
+  (compiling source file 'src/commons/Randomizer.cpp')
+  

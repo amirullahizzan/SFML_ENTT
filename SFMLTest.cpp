@@ -4,6 +4,7 @@
 #include "src/commons/PerformanceAnalyze.h"
 #include "GameLoop.h"
 
+
 int main()
 {
 	sf::RenderWindow window(sf::VideoMode(800, 600), "SFML 2 Window");
@@ -16,6 +17,7 @@ int main()
 	LARGE_INTEGER end;
 
 	QueryPerformanceFrequency(&freq);
+	// after you spawn entities:
 
 	while (window.isOpen())
 	{
@@ -31,11 +33,11 @@ int main()
 		QueryPerformanceCounter(&start);
 		GameMain(window, registry);
 		QueryPerformanceCounter(&end);
-		CountTimeWindows(freq, start, end);
+		double elapsed = static_cast<double>(end.QuadPart - start.QuadPart) / freq.QuadPart;
+		printf("Elapsed time: %f seconds\n", elapsed);
 
 		window.display();
 	}
-
 
 	return 0;
 }

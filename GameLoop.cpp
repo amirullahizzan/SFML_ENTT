@@ -1,79 +1,111 @@
 #include "GameLoop.h"
 
-#include "src/commons/Randomizer.h"
-#include "src/main/Systems.h"
-
 #include <print>
 
-bool pressedLastFrame = false;
+struct Position{	float x, y;};
+struct Velocity{	float x, y;};
+struct Circle //FOR OOP
+{
+	Position pos;
+	Velocity vel;
 
+	void Move() 
+	{ pos.x += vel.x; }
+};
 
+std::vector<Circle*> circles;
 
 void GameInit(sf::RenderWindow& window, entt::registry& registry)
 {
 	sf::Vector2u windowSize = window.getSize(); // width, height
-
 	sf::Vector2f topLeft(0.f, 0.f);
-	sf::Vector2f topRight(static_cast<float>(windowSize.x), 0.f);
-	sf::Vector2f bottomLeft(0.f, static_cast<float>(windowSize.y));
-	sf::Vector2f bottomRight(static_cast<float>(windowSize.x), static_cast<float>(windowSize.y));
 
-	constexpr int ENTITY_SPAWN_COUNT = 10000;
+	float maxHeight = static_cast<float>(windowSize.y);
+	constexpr int ENTITY_SPAWN_COUNT = 100000;
+
+	// OOP STYLE
 	for (int i = 0; i < ENTITY_SPAWN_COUNT; i++)
 	{
-		// Create a simple entity with a position and a shape
-		auto entity = registry.create();
-
-		//auto& circle = registry.emplace<sf::CircleShape>(entity, radius); //dont need this big data. create this on render only
-		float radius = 10.0f;
-		RenderData renderDat = RenderData(radius, GetRandomColorSF());
-		registry.emplace<RenderData>(entity, renderDat);
-
-		float maxHeight = static_cast<float>(windowSize.y);
-		registry.emplace<Position>
-			(entity, topLeft.x, std::fmod(topLeft.y + (i * 0.1f), maxHeight)); //looping the y position back to 0
-
-		registry.emplace<Velocity>(entity, 0.f, 0.f);
+		Circle* circle = new Circle();
+		circle->pos = Position(0.0f, 0.0f);
+		circles.emplace_back(circle);
 	}
 
-	auto group = registry.group<entt::entity>();
-	printf("Entity count : %zu \n", group.size());
+	//ENTT STYLE
+	for (int i = 0; i < ENTITY_SPAWN_COUNT; i++)
+	{
+		auto entity = registry.create();
+
+		registry.emplace<Position>(entity, Position(0.0f, 0.0f));
+		registry.emplace<Velocity>(entity, 0.f, 0.f);
+	}
 }
+
+void SystemCirclesMover_ENTT(sf::RenderWindow& window, entt::registry& registry)
+{
+	//auto view = registry.view<Position, Velocity>();
+	//for (auto [ent, pos, velocity] : view.each()) //SLOWER
+
+	auto group = registry.group<Position, Velocity>();
+	for (auto [ent, pos, velocity] : group.each())
+	{
+		pos.x += velocity.x;
+	}
+}
+
+void SystemCirclesMover_OOP(std::vector<Circle*>& circles)
+{
+	for (auto& c : circles) 
+	{
+		c->Move();
+	}
+}
+
 
 void GameMain(sf::RenderWindow& window, entt::registry& registry)
 {
-	bool isKeyDown = sf::Keyboard::isKeyPressed(sf::Keyboard::Space);
-	if (isKeyDown && !pressedLastFrame)
-	{
-		float force = 3.f;
-		for (auto [ent, vel, renderDat] : registry.view<Velocity, RenderData>().each())
-		{
-			int randomTest = rand() % 100;
-			float randomF = randomTest * 0.1f;
-			//int entityId = static_cast<uint32_t>(ent);
-			vel.x += force + randomF;
-		}
-	}
-	pressedLastFrame = isKeyDown;
-
-	//SystemClickCircle(window, registry);
-	SystemCircleLooper(window, registry);
-	SystemRandomizeColor(window, registry);
-	SystemVelocity(window, registry);
-	SystemCirclesMover(window, registry);
-	SystemRender(window, registry);
+	SystemCirclesMover_ENTT(window, registry);
+	//SystemCirclesMover_OOP(circles);
 }
 
-//Result:
-// With Circle (With View, not Group)
-//Elapsed time : 0.032607 seconds
-//Elapsed time : 0.031879 seconds
-//Elapsed time : 0.031519 seconds
+//Results:
 
+//DEBUG With OOP 
+//Elapsed time : 0.000069 seconds
+//Elapsed time : 0.000020 seconds
+//Elapsed time : 0.000029 seconds
+//Elapsed time : 0.000019 seconds
+// OOP FASTER
 
-//Without Circle (With view, not Group)
-//Elapsed time: 0.032731 seconds
-//Elapsed time : 0.032812 seconds
-//Elapsed time : 0.032683 seconds
-//Elapsed time : 0.033412 seconds
-//Elapsed time : 0.033078 seconds
+//DEBUG With ENTT (Group)
+//Elapsed time : 0.003572 seconds
+//Elapsed time : 0.003583 seconds
+//Elapsed time : 0.003515 seconds
+//Elapsed time : 0.003663 seconds
+// ENTT SLOWER
+
+//NOT DEBUG With OOP 
+//Elapsed time : 0.000016 seconds
+//Elapsed time : 0.000013 seconds
+//Elapsed time : 0.000013 seconds
+//Elapsed time : 0.000013 seconds
+// OOP FASTER
+
+//NOT DEBUG With ENTT
+//Elapsed time : 0.001579 seconds
+//Elapsed time : 0.001643 seconds
+//Elapsed time : 0.001630 seconds
+//Elapsed time : 0.001657 seconds
+// ENTT SLOWER
+
+//OOP 100.000 (Release)
+//Elapsed time : 0.000268 seconds
+//Elapsed time : 0.000305 seconds
+//Elapsed time : 0.000188 seconds
+//Elapsed time : 0.000244 seconds
+
+//ENTT 100.000 (Release)
+//Elapsed time : 0.017884 seconds
+//Elapsed time : 0.018441 seconds
+//Elapsed time : 0.018790 seconds
+//Elapsed time : 0.018355 seconds
