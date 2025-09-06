@@ -2,18 +2,104 @@
 
 #include <print>
 
-struct Position{	float x, y;};
-struct Velocity{	float x, y;};
-struct Circle //FOR OOP
-{
-	Position pos;
-	Velocity vel;
+struct Position { float x, y; };
+struct Velocity { float x, y; };
+struct CircleData { float radius; };
 
-	void Move() 
-	{ pos.x += vel.x; }
+
+struct Object //FOR OOP
+{
+
 };
 
-std::vector<Circle*> circles;
+struct Component
+{
+	Component() = default;
+	virtual ~Component() = default;
+};
+
+struct PositionComp : public Component
+{
+	PositionComp(float x, float y) : x(x), y(y) {};
+	float x, y;
+
+	void Move(float velX)
+	{
+		x += velX;
+	}
+
+
+};
+
+struct VelocityComp : public Component
+{
+	VelocityComp(float x, float y) : x(x), y(y) {};
+	float x, y;
+	void AddForce(float x, float y)
+	{
+		x += x;
+		y += y;
+	}
+	void ApplyFriction()
+	{
+		constexpr float friction = 0.98f;
+		x *= friction;
+		y *= friction;
+	}
+};
+
+struct Circle : public Object //FOR OOP
+{
+	Circle()
+	{
+		VelocityComp* initialVelComp = new VelocityComp(3.0f, 0.0f);
+
+		components.emplace_back(new PositionComp{ 0.0f,0.0f });
+		components.emplace_back(initialVelComp);
+	};
+
+	std::vector<Component*> components; //oop
+
+	template <typename T>
+	T* GetComponent()
+	{
+		for (auto* component : components)
+		{
+			T* cast = dynamic_cast<T*>(component);
+			if (cast) return cast;
+		}
+		return nullptr;
+	}
+
+	bool CheckNeighbors(float thisRadius, const std::vector<Circle*>& circles)
+	{
+		const auto* thisPosition = GetComponent<PositionComp>();
+		for (const auto& circle : circles)
+		{
+			if (circle != this)
+			{
+				const auto* position = circle->GetComponent<PositionComp>();
+				float dx = thisPosition->x - position->x;
+				float dy = thisPosition->y - position->y;
+				float distance = std::sqrt(dx * dx + dy * dy);
+
+				if (distance < (thisRadius + circle->radius))
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+
+	bool isHit = false;
+	float radius = 5.0f;
+
+};
+
+std::vector<Circle*> circles; //oop
 
 void GameInit(sf::RenderWindow& window, entt::registry& registry)
 {
@@ -23,21 +109,23 @@ void GameInit(sf::RenderWindow& window, entt::registry& registry)
 	float maxHeight = static_cast<float>(windowSize.y);
 	constexpr int ENTITY_SPAWN_COUNT = 100000;
 
+
 	// OOP STYLE
 	for (int i = 0; i < ENTITY_SPAWN_COUNT; i++)
 	{
 		Circle* circle = new Circle();
-		circle->pos = Position(0.0f, 0.0f);
 		circles.emplace_back(circle);
 	}
 
+	Velocity initialVel = Velocity(3.0f, 0.0f);
 	//ENTT STYLE
 	for (int i = 0; i < ENTITY_SPAWN_COUNT; i++)
 	{
 		auto entity = registry.create();
 
 		registry.emplace<Position>(entity, Position(0.0f, 0.0f));
-		registry.emplace<Velocity>(entity, 0.f, 0.f);
+		registry.emplace<Velocity>(entity, initialVel);
+		registry.emplace<CircleData>(entity, 10.0f);
 	}
 }
 
@@ -51,13 +139,30 @@ void SystemCirclesMover_ENTT(sf::RenderWindow& window, entt::registry& registry)
 	{
 		pos.x += velocity.x;
 	}
+
+	auto view = registry.view<Velocity>();
+	constexpr float friction = 0.98f;
+	for (auto [ent, velocity] : view.each())
+	{
+		velocity.x *= friction;
+	}
+
+	auto view = registry.view<CircleData>();
+	constexpr float friction = 0.98f;
+	for (auto [ent, circle] : view.each())
+	{
+		//if(circle);
+	}
 }
 
 void SystemCirclesMover_OOP(std::vector<Circle*>& circles)
 {
-	for (auto& c : circles) 
+	for (auto& c : circles)
 	{
-		c->Move();
+		auto* posComp = c->GetComponent<PositionComp>();
+		posComp->Move(1.0f);
+		c->GetComponent<VelocityComp>()->ApplyFriction();
+		c->CheckNeighbors(c->radius, circles);
 	}
 }
 
